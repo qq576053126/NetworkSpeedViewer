@@ -40,9 +40,6 @@
     <Reference Include="MyConfigure">
       <HintPath>..\..\..\资料夹\MyConfigure\MyConfigure\bin\Debug\MyConfigure.dll</HintPath>
     </Reference>
-    <Reference Include="NetworkMonitor">
-      <HintPath>..\..\..\..\NetworkMonitor\bin\Debug\NetworkMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -66,6 +63,7 @@
     <Compile Include="SettingsWin.xaml.cs">
       <DependentUpon>SettingsWin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utility.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -112,6 +110,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="myicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkMonitor\NetworkMonitor.csproj">
+      <Project>{094f3735-b09d-4721-8b37-02a155482b1b}</Project>
+      <Name>NetworkMonitor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

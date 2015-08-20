@@ -40,26 +40,14 @@ namespace NetworkSpeedViewer
         void speedTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             NetworkAdapter adapter = adapterTemp;
-            long downLoadSpeed = adapter.DownloadSpeed;
             new Thread(() =>
             {
                 this.Dispatcher.Invoke(new Action(() =>
                 {
                     //下载速度显示
-                    if (downLoadSpeed < 1024)
-                        mainDownload.Text = NumberToBit(downLoadSpeed);
-                    if (downLoadSpeed >= 1024 && downLoadSpeed < 1024 * 1024)
-                        mainDownload.Text = NumberToKB(Convert.ToDouble(downLoadSpeed));
-                    if (downLoadSpeed >= 1024 * 1024)
-                        mainDownload.Text = NumberToMB(Convert.ToDouble(downLoadSpeed));
+                    mainDownload.Text = Utility.NumberToDlSpeed(adapter.DownloadSpeed);
                     //上载速度显示
-                    long upLoadSpeed = adapter.UploadSpeed;
-                    if (upLoadSpeed < 1024)
-                        mainUpload.Text = NumberToBit(upLoadSpeed);
-                    if (upLoadSpeed >= 1024 && upLoadSpeed < 1024 * 1024)
-                        mainUpload.Text = NumberToKB(Convert.ToDouble(upLoadSpeed));
-                    if (upLoadSpeed >= 1024 * 1024)
-                        mainUpload.Text = NumberToMB(Convert.ToDouble(upLoadSpeed));
+                    mainUpload.Text = Utility.NumberToUlSpeed(adapter.UploadSpeed);
                 }));
             }).Start();
         }
@@ -73,7 +61,7 @@ namespace NetworkSpeedViewer
                 {
                     if (!sw.IsVisible)
                     {
-                        MessageBox.Show("1");
+                        mainFunction();
                         swTimer.Stop();
                     }
                 }));
@@ -86,6 +74,10 @@ namespace NetworkSpeedViewer
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            mainFunction();
+        }
+        private void mainFunction()
         {
             this.adapters = null;
             this.adapters = FoundNetworkAdapter();
@@ -127,30 +119,6 @@ namespace NetworkSpeedViewer
             monitor = new NetworkMonitor();
             adaptersTemp = monitor.Adapters;
             return adaptersTemp;
-        }
-        //格式转换
-        private string NumberToBit(long speed)
-        {
-            return RemoveZore(String.Format("{0:N}", speed)) + "B/秒";
-        }
-        private string NumberToKB(double speed)
-        {
-            return RemoveZore(String.Format("{0:N}", (speed / 1024))) + "KB/秒";
-        }
-        private string NumberToMB(double speed)
-        {
-            return RemoveZore(String.Format("{0:N}", speed / (1024 * 1024))) + "MB/秒";
-        }
-        private string RemoveZore(string s)
-        {
-            if (s.Substring(s.Length - 3) == ".00")
-            {
-                return s.Substring(0, s.Length - 3);
-            }
-            else if (s.Substring(s.Length - 1) == "0")
-                return s.Substring(0, s.Length - 1);
-            else
-                return s;
         }
     }
 }

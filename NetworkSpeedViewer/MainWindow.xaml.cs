@@ -26,8 +26,9 @@ namespace NetworkSpeedViewer
         private NetworkAdapter[] adapters;
         private NetworkAdapter adapterTemp;
         private NetworkMonitor monitor;
-        System.Timers.Timer swTimer = new System.Timers.Timer();
-        System.Timers.Timer speedTimer = new System.Timers.Timer();
+        private System.Timers.Timer swTimer = new System.Timers.Timer();
+        private System.Timers.Timer speedTimer = new System.Timers.Timer();
+        private System.Windows.Forms.NotifyIcon nofityIcon = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -35,8 +36,32 @@ namespace NetworkSpeedViewer
             swTimer.Elapsed += swTimer_Elapsed;
             speedTimer.Interval = 1000;
             speedTimer.Elapsed += speedTimer_Elapsed;
+
+            NotifyIconSettings();
         }
 
+        private void NotifyIconSettings()
+        {
+            //托盘
+            this.nofityIcon = new System.Windows.Forms.NotifyIcon();
+            this.nofityIcon.Icon = new System.Drawing.Icon(Environment.CurrentDirectory + @"/notifyIcon");
+            this.nofityIcon.Text = "程序正在运行";
+            this.nofityIcon.Visible = true;
+            //菜单项
+            System.Windows.Forms.MenuItem settingsMenu = new System.Windows.Forms.MenuItem("设置");
+            System.Windows.Forms.MenuItem exitMenu = new System.Windows.Forms.MenuItem("退出");
+            exitMenu.Click += exitMenu_Click;
+            System.Windows.Forms.MenuItem[] menuItems = new System.Windows.Forms.MenuItem[] { settingsMenu, exitMenu };
+            this.nofityIcon.ContextMenu = new System.Windows.Forms.ContextMenu(menuItems);
+        }
+
+        //托盘退出按钮
+        void exitMenu_Click(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        //速度刷新计时器方法
         void speedTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             NetworkAdapter adapter = adapterTemp;
@@ -52,6 +77,7 @@ namespace NetworkSpeedViewer
             }).Start();
         }
 
+        //探测设置窗口是否关闭的计时器方法
         void swTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             SettingsWin sw = SettingsWin.GetInstance();
@@ -75,6 +101,20 @@ namespace NetworkSpeedViewer
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            double screenHeight = SystemParameters.PrimaryScreenHeight;
+            double screenWidth = SystemParameters.PrimaryScreenWidth;
+
+            double saveLeft = Convert.ToDouble(MyConfigure.ConfigureFile.INIGetStringValue(Environment.CurrentDirectory + @"/settings.ini", "ProgramSettings", "WinLeft", "-1000"));
+            double saveTop = Convert.ToDouble(MyConfigure.ConfigureFile.INIGetStringValue(Environment.CurrentDirectory + @"/settings.ini", "ProgramSettings", "WinTop", "-1000"));
+
+            if (saveLeft == -1000 || saveLeft >= screenWidth - 2 || saveLeft <= -this.Width + 2)
+                saveLeft = screenWidth - this.Width;
+            if (saveTop == -1000 || saveTop >= screenHeight - 2 || saveTop <= -this.Top + 2)
+                saveTop = screenHeight - this.Height - (screenHeight / 20);
+
+            this.WindowStartupLocation = WindowStartupLocation.Manual;
+            this.Left = saveLeft;
+            this.Top = saveTop;
             mainFunction();
         }
         private void mainFunction()
@@ -120,5 +160,19 @@ namespace NetworkSpeedViewer
             adaptersTemp = monitor.Adapters;
             return adaptersTemp;
         }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            MyConfigure.ConfigureFile.INIWriteValue(Environment.CurrentDirectory + @"/settings.ini", "ProgramSettings", "WinLeft", this.Left.ToString());
+            MyConfigure.ConfigureFile.INIWriteValue(Environment.CurrentDirectory + @"/settings.ini", "ProgramSettings", "WinTop", this.Top.ToString());
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.nofityIcon.Visible = false;
+            this.nofityIcon.Dispose();
+            this.nofityIcon = null;
+        }
+
     }
 }

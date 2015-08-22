@@ -44,7 +44,7 @@ namespace NetworkSpeedViewer
         {
             //托盘
             this.nofityIcon = new System.Windows.Forms.NotifyIcon();
-            this.nofityIcon.Icon = new System.Drawing.Icon(Environment.CurrentDirectory + @"/notifyIcon");
+            this.nofityIcon.Icon = Properties.Resources.meter_128px;
             this.nofityIcon.Text = "程序正在运行";
             this.nofityIcon.Visible = true;
             //菜单项
